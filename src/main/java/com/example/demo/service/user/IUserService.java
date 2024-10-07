@@ -1,18 +1,25 @@
 package com.example.demo.service.user;
 
-import com.example.demo.dto.LoginInputRequestDto;
-import com.example.demo.dto.RegisterInputRequestDto;
-import com.example.demo.model.UserModel;
-import com.example.demo.responses.LoginResponse;
+import com.example.demo.dto.request.LoginInputRequestDto;
+import com.example.demo.dto.request.RegisterInputRequestDto;
+import com.example.demo.dto.response.LoginResponseDto;
+import com.example.demo.model.User;
+import com.example.demo.dto.response.RegisterResponseDto;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface IUserService {
-    CompletableFuture<UserModel> signUp(RegisterInputRequestDto userData);
-    CompletableFuture<LoginResponse> login(LoginInputRequestDto userData);
-    CompletableFuture<UserModel> updateUser(Long id, RegisterInputRequestDto userData);
-    CompletableFuture<UserModel> getUserById(Long id);
-    CompletableFuture<List<UserModel> >getAllUsers();
-    CompletableFuture<Boolean> deleteUser(Long id);
+    RegisterResponseDto signUp(RegisterInputRequestDto userData);
+
+    Boolean validatePassword(String rawPassword, String encodedPassword);
+
+    LoginResponseDto login(LoginInputRequestDto userData);
+
+    RegisterResponseDto updateUser(Long id, RegisterInputRequestDto userData);
+
+    User getUserById(Long id);
+
+    List<User> getAllUsers();
+
+    Boolean deleteUser(Long id);
 }

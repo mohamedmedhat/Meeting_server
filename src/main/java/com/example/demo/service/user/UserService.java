@@ -1,52 +1,111 @@
 package com.example.demo.service.user;
 
-import com.example.demo.dto.LoginInputRequestDto;
-import com.example.demo.dto.RegisterInputRequestDto;
-import com.example.demo.model.UserModel;
+import com.example.demo.dto.request.LoginInputRequestDto;
+import com.example.demo.dto.request.RegisterInputRequestDto;
+import com.example.demo.dto.response.UserResponseDto;
+import com.example.demo.mapper.user.UserMapper;
+import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.responses.LoginResponse;
+import com.example.demo.dto.response.LoginResponseDto;
+import com.example.demo.dto.response.RegisterResponseDto;
+import com.example.demo.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
+
 
 @Service
 public class UserService implements IUserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
-    public CompletableFuture<UserModel> signUp(RegisterInputRequestDto userData) {
-        return null;
+    public RegisterResponseDto signUp(RegisterInputRequestDto userData) {
+        try {
+            User user = this.userMapper.RegisterInputRequestToEntity(userData);
+            User savedUser = this.userRepository.save(user);
+            return this.userMapper.toRegisterResponseDto(savedUser);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during sign-up: " + e.getMessage(), e);
+        }
     }
 
     @Override
-    public CompletableFuture<LoginResponse> login(LoginInputRequestDto userData) {
-        return null;
+    public Boolean validatePassword(String rawPassword, String encodedPassword) {
+        try {
+            return this.passwordEncoder.matches(rawPassword, encodedPassword);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during password validation: " + e.getMessage(), e);
+        }
     }
 
     @Override
-    public CompletableFuture<UserModel> updateUser(Long id, RegisterInputRequestDto userData) {
-        return null;
+    public LoginResponseDto login(LoginInputRequestDto userData) {
+        try {
+            User user = this.userRepository.findByEmail(userData.getEmail());
+            if (user != null && this.validatePassword(userData.getPassword(), user.getPassword())) {
+                String token = jwtUtil.generateToken(user.getEmail());
+                UserResponseDto userDto = this.userMapper.toUserResponseDto(user);
+                return this.userMapper.toLoginResponseDto(userDto, token);
+            }
+            throw new RuntimeException("Invalid credentials");
+        } catch (Exception e) {
+            throw new RuntimeException("Error during login: " + e.getMessage(), e);
+        }
     }
 
     @Override
-    public CompletableFuture<UserModel> getUserById(Long id) {
-        return null;
+    public User getUserById(Long id) {
+        try {
+            Optional<User> userOptional = this.userRepository.findById(id);
+            return userOptional.orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving user by ID: " + e.getMessage(), e);
+        }
     }
 
     @Override
-    public CompletableFuture<List<UserModel>> getAllUsers() {
-        return CompletableFuture.completedFuture(this.userRepository.findAll());
+    public List<User> getAllUsers() {
+        try {
+            return this.userRepository.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving all users: " + e.getMessage(), e);
+        }
     }
 
     @Override
-    public CompletableFuture<Boolean> deleteUser(Long id) {
-        return null;
+    public RegisterResponseDto updateUser(Long id, RegisterInputRequestDto userData) {
+        try {
+            User user = this.getUserById(id);
+            User updateUser = this.userMapper.UserUpdateTOEntity(userData, user);
+            User savedUser = this.userRepository.save(updateUser);
+            return this.userMapper.toRegisterResponseDto(savedUser);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during user update: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Boolean deleteUser(Long id) {
+        try {
+            User user = this.getUserById(id);
+            this.userRepository.delete(user);
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("Error during user deletion: " + e.getMessage(), e);
+        }
     }
 }

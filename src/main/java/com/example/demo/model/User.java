@@ -37,6 +37,14 @@ public class User {
     @Column(name = "role")
     private Set<String> roles = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_meeting",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "meeting_id")
+    )
+    private Set<Meeting> meetings;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

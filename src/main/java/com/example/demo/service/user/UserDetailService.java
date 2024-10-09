@@ -4,10 +4,11 @@ import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 public class UserDetailService implements UserDetailsService {
@@ -19,11 +20,17 @@ public class UserDetailService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = this.userRepository.findByEmail(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), new ArrayList<>());
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .authorities(user.getRoles().stream()
+                        .map(role -> "ROLE_" + role) // Ensure "ROLE_" prefix
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList()))
+                .build();
     }
 }

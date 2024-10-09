@@ -10,26 +10,38 @@ import com.example.demo.dto.response.LoginResponseDto;
 import com.example.demo.dto.response.RegisterResponseDto;
 import com.example.demo.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-
 
 @Service
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailService userDetailService;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public UserService(
+            UserRepository userRepository,
+            UserMapper userMapper,
+            PasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil,
+            AuthenticationManager authenticationManager,
+            UserDetailService userDetailService
+    ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
+        this.userDetailService = userDetailService;
     }
 
     @Override
@@ -54,27 +66,24 @@ public class UserService implements IUserService {
 
     @Override
     public LoginResponseDto login(LoginInputRequestDto userData) {
-        try {
-            User user = this.userRepository.findByEmail(userData.getEmail());
-            if (user != null && this.validatePassword(userData.getPassword(), user.getPassword())) {
-                String token = jwtUtil.generateToken(user.getEmail());
-                UserResponseDto userDto = this.userMapper.toUserResponseDto(user);
-                return this.userMapper.toLoginResponseDto(userDto, token);
-            }
-            throw new RuntimeException("Invalid credentials");
-        } catch (Exception e) {
-            throw new RuntimeException("Error during login: " + e.getMessage(), e);
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userData.getEmail(), userData.getPassword()));
+        User user = this.userRepository.findByEmail(userData.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (this.validatePassword(userData.getPassword(), user.getPassword())) {
+            String token = jwtUtil.generateToken(user);
+            UserResponseDto userDto = this.userMapper.toUserResponseDto(user);
+            return this.userMapper.toLoginResponseDto(userDto, token);
         }
+        throw new RuntimeException("Invalid credentials");
     }
+
 
     @Override
     public User getUserById(Long id) {
-        try {
-            Optional<User> userOptional = this.userRepository.findById(id);
-            return userOptional.orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        } catch (Exception e) {
-            throw new RuntimeException("Error retrieving user by ID: " + e.getMessage(), e);
-        }
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
     @Override

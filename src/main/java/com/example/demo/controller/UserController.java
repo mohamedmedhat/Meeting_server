@@ -8,12 +8,13 @@ import com.example.demo.dto.response.LoginResponseDto;
 import com.example.demo.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users/v1")
+@RequestMapping("api/v1/users/")
 public class UserController {
     private final UserService userService;
 
@@ -32,22 +33,26 @@ public class UserController {
         return this.userService.login(userData);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("update/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public RegisterResponseDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody RegisterInputRequestDto userData) {
         return this.userService.updateUser(id, userData);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Boolean deleteUser(@PathVariable("id") Long id) {
         return this.userService.deleteUser(id);
     }
 
-    @GetMapping("/getone/{id}")
+    @GetMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ORGANIZER')")
     public User getOne(@PathVariable("id") Long id) {
         return this.userService.getUserById(id);
     }
 
-    @GetMapping("/getAll")
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<User> getAll() {
         return this.userService.getAllUsers();
     }

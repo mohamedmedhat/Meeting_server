@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -42,8 +44,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))  // Enable CORS if needed
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/v1/auth/**").permitAll()  // Open auth endpoints
+                        .requestMatchers("/api/v1/users/auth/**").permitAll()  // Open auth endpoints
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/api/v1/users/").hasRole("ADMIN")// Allow access to Actuator endpoints
                         .anyRequest().authenticated()  // Secure all other endpoints
                 )
                 .sessionManagement(session -> session

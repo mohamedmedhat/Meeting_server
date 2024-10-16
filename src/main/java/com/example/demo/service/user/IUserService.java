@@ -7,19 +7,20 @@ import com.example.demo.model.User;
 import com.example.demo.dto.response.RegisterResponseDto;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface IUserService {
-    RegisterResponseDto signUp(RegisterInputRequestDto userData);
+    CompletableFuture<RegisterResponseDto> signUp(RegisterInputRequestDto userData);
 
-    Boolean validatePassword(String rawPassword, String encodedPassword);
+    CompletableFuture<Boolean> validatePassword(String rawPassword, String encodedPassword);
 
-    LoginResponseDto login(LoginInputRequestDto userData);
+    CompletableFuture<LoginResponseDto> login(LoginInputRequestDto userData);
 
-    RegisterResponseDto updateUser(Long id, RegisterInputRequestDto userData);
+    CompletableFuture<RegisterResponseDto> updateUser(String id, RegisterInputRequestDto userData);
 
-    User getUserById(Long id);
+    User getUserById(String id);
 
     List<User> getAllUsers();
 
-    Boolean deleteUser(Long id);
+    Boolean deleteUser(String id);
 }

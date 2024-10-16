@@ -5,21 +5,19 @@ import com.example.demo.dto.response.LoginResponseDto;
 import com.example.demo.dto.response.RegisterResponseDto;
 import com.example.demo.dto.response.UserResponseDto;
 import com.example.demo.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
+@RequiredArgsConstructor
 @Component
 public class UserMapper implements IUserMapper {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserMapper(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public String encodePassword(String password) {

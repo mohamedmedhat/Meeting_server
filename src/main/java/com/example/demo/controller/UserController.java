@@ -5,49 +5,47 @@ import com.example.demo.dto.request.RegisterInputRequestDto;
 import com.example.demo.dto.response.RegisterResponseDto;
 import com.example.demo.model.User;
 import com.example.demo.dto.response.LoginResponseDto;
-import com.example.demo.service.user.UserService;
+import com.example.demo.service.user.IUserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/users/")
 public class UserController {
-    private final UserService userService;
+    private final IUserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping("auth/register")
-    public RegisterResponseDto register(@Valid @RequestBody RegisterInputRequestDto userData) {
+    public CompletableFuture<RegisterResponseDto> register(@Valid @RequestBody RegisterInputRequestDto userData) {
         return this.userService.signUp(userData);
     }
 
     @PostMapping("auth/login")
-    public LoginResponseDto login(@Valid @RequestBody LoginInputRequestDto userData) {
+    public CompletableFuture<LoginResponseDto> login(@Valid @RequestBody LoginInputRequestDto userData) {
         return this.userService.login(userData);
     }
 
     @PutMapping("update/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public RegisterResponseDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody RegisterInputRequestDto userData) {
+    public CompletableFuture<RegisterResponseDto> updateUser(@PathVariable("id") String id, @Valid @RequestBody RegisterInputRequestDto userData) {
         return this.userService.updateUser(id, userData);
     }
 
     @DeleteMapping("delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Boolean deleteUser(@PathVariable("id") Long id) {
+    public Boolean deleteUser(@PathVariable("id") String id) {
         return this.userService.deleteUser(id);
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('ORGANIZER')")
-    public User getOne(@PathVariable("id") Long id) {
+    public User getOne(@PathVariable("id") String id) {
         return this.userService.getUserById(id);
     }
 

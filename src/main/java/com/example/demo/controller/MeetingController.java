@@ -1,25 +1,29 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.CreateMeetingRequestDto;
+import com.example.demo.dto.request.CreateMessageRequestDto;
 import com.example.demo.model.Meeting;
-import com.example.demo.service.meeting.MeetingService;
+import com.example.demo.model.Message;
+import com.example.demo.model.User;
+import com.example.demo.security.CurrentUser;
+import com.example.demo.service.meeting.IMeetingService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/meetings/")
 public class MeetingController {
-    private final MeetingService meetingService;
-
-    public MeetingController(MeetingService meetingService) {
-        this.meetingService = meetingService;
-    }
+    private final IMeetingService meetingService;
 
     @PostMapping()
-    public Meeting createMeeting() {
-        return this.meetingService.createMeeting();
+    public Meeting createMeeting(@Valid @RequestBody CreateMeetingRequestDto meetingData) {
+        return this.meetingService.createMeeting(meetingData);
     }
 
     @GetMapping
@@ -28,7 +32,7 @@ public class MeetingController {
     }
 
     @DeleteMapping("{id}")
-    public void deleteMeeting(Long id) {
+    public void deleteMeeting(String id) {
         this.meetingService.deleteMeeting(id);
     }
 
@@ -45,7 +49,7 @@ public class MeetingController {
 
     @MessageMapping("/chat")
     @SendTo("/topic/chat")
-    public String sendMessage(String message) {
-        return this.meetingService.sendMessage(message);
+    public Message sendMessage(@Valid @RequestBody CreateMessageRequestDto messageData, @CurrentUser User user) {
+        return this.meetingService.sendMessage(messageData, user);
     }
 }

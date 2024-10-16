@@ -4,39 +4,34 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-@Setter
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "meetings")
-public class Meeting {
+@Document(collection = "messages")
+public class Message {
     @Id
     private String id;
 
-    @Field
-    private String title;
-
-    @Field
-    private String meetingLink;
-
-    @Field
-    private String hostEmail;
-
-    @Field
-    private LocalDateTime startTime;
-
-    @Field
-    private LocalDateTime endTime;
+    @Field(name = "text")
+    private String text;
 
     @DBRef
-    private Set<User> users = new HashSet<>();
+    private User user;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }

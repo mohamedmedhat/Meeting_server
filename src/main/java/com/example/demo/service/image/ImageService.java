@@ -30,6 +30,6 @@ public class ImageService implements IImageService {
     @Override
     public void deleteImage(Image image) {
         Image currentImage = this.findImageById(image.getId());
-        this.imageRepository.delete(image);
+        this.imageRepository.delete(currentImage);
     }
 }

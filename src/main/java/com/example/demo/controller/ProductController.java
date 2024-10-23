@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Product;
 import com.example.demo.service.product.IProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
-
+import java.util.concurrent.CompletableFuture;
+@Tag(name = "Products", description = "not authorized till now")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/products/")
@@ -33,7 +35,7 @@ public class ProductController {
     }
 
     @PutMapping("{id}")
-    public Product updateProduct(
+    public CompletableFuture<Product> updateProduct(
             @PathVariable("id") String id,
             @RequestParam("name") String name,
             @RequestParam("price") BigDecimal price,
@@ -52,7 +54,7 @@ public class ProductController {
     }
 
     @GetMapping("{page}/{size}")
-    public Page<Product> getAllProducts(@PathVariable("page") int page, @PathVariable("size") int size) {
+    public CompletableFuture<Page<Product>> getAllProducts(@PathVariable("page") int page, @PathVariable("size") int size) {
         return this.productService.findAll(page, size);
     }
 }

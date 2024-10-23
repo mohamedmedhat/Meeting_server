@@ -7,17 +7,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.concurrent.CompletableFuture;
 
 public interface IProductService {
     Boolean createProduct(String name, BigDecimal price, MultipartFile file) throws IOException;
 
-    Product updateProduct(String id, String name, BigDecimal price, MultipartFile file) throws IOException;
+    CompletableFuture<Product> updateProduct(String id, String name, BigDecimal price, MultipartFile file);
 
     ResponseEntity<Void> deleteProduct(String id);
 
     Product findProductById(String id);
 
-    Page<Product> findAll(int page, int size);
+    CompletableFuture<Page<Product>> findAll(int page, int size);
 
     Page<Product> findProductsByHighestPrice(int page, int size);
 

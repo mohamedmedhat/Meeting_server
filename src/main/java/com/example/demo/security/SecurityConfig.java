@@ -47,7 +47,10 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users/auth/**").permitAll()  // Open auth endpoints
+                        .requestMatchers("/api/v1/users/auth/**").permitAll()
+                        .requestMatchers("api/v1/products/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll() // open swagger endpoints
+                        .requestMatchers("/swagger-ui/**").permitAll()// Open auth endpoints
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/v1/users/").hasRole("ADMIN")// Allow access to Actuator endpoints
                         .anyRequest().authenticated()  // Secure all other endpoints

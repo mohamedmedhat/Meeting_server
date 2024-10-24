@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Product;
+import com.example.demo.model.User;
+import com.example.demo.security.CurrentUser;
 import com.example.demo.service.product.IProductService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
 @Tag(name = "Products", description = "not authorized till now")
 @RequiredArgsConstructor
 @RestController
@@ -56,5 +59,10 @@ public class ProductController {
     @GetMapping("{page}/{size}")
     public CompletableFuture<Page<Product>> getAllProducts(@PathVariable("page") int page, @PathVariable("size") int size) {
         return this.productService.findAll(page, size);
+    }
+
+    @PostMapping("add-to-Cart/{id}")
+    public Boolean addToCart(@PathVariable("id") String id, @CurrentUser() User user) {
+        return this.productService.addProductToCart(id, user);
     }
 }

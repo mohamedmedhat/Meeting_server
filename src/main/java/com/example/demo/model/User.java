@@ -49,7 +49,7 @@ public class User {
     private List<Message> messages;
 
     @DBRef
-    private List<Cart> carts;
+    private Cart cart;
 
     @CreatedDate
     private LocalDateTime createdAt;

@@ -1,10 +1,15 @@
 package com.example.demo.service.product;
 
 import com.example.demo.mapper.ProductMapper;
+import com.example.demo.model.Cart;
 import com.example.demo.model.Image;
 import com.example.demo.model.Product;
+import com.example.demo.model.User;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.cart.CartService;
 import com.example.demo.service.image.ImageService;
+import com.example.demo.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
@@ -25,6 +32,8 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ImageService imageService;
+    private final CartService cartService;
+    private final UserRepository userRepository;
 
     @Override
     public Boolean createProduct(String name, BigDecimal price, MultipartFile file) throws IOException {
@@ -64,6 +73,38 @@ public class ProductService implements IProductService {
         return this.productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product Not Found"));
     }
+
+    @Override
+    public Boolean addProductToCart(String productId, User user) {
+        Product product = this.findProductById(productId);
+        if (user.getCart() == null) {
+            Cart cart = new Cart(); // Create new Cart instance
+            cart.setProducts(new ArrayList<>()); // Initialize products list
+            cart.setTotal_price(BigDecimal.ZERO); // Initialize total price
+            cart.setTotal_products(0); // Initialize total products
+            cart = this.cartService.saveCart(cart); // Save the new cart to the database
+
+            user.setCart(cart); // Set the cart to the user
+            this.userRepository.save(user); // Persist user with the new cart
+        }
+
+        Cart cart = user.getCart();
+
+        // Add product to cart
+        List<Product> products = cart.getProducts();
+        products.add(product);
+
+        // Update total products and total price
+        cart.setTotal_products(products.size());
+        cart.setTotal_price(cart.getTotal_price().add(product.getPrice()));
+
+        this.cartService.saveCart(cart); // Persist updated cart
+
+        return true;
+    }
+
+
+
 
     @Async
     @Override

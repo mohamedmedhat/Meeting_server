@@ -1,6 +1,7 @@
 package com.example.demo.service.product;
 
 import com.example.demo.model.Product;
+import com.example.demo.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,8 @@ public interface IProductService {
     ResponseEntity<Void> deleteProduct(String id);
 
     Product findProductById(String id);
+
+    Boolean addProductToCart(String productId, User user);
 
     CompletableFuture<Page<Product>> findAll(int page, int size);
 

@@ -1,7 +1,7 @@
 package com.example.demo.security;
 
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.user.User;
+import com.example.demo.user.UserRepository;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

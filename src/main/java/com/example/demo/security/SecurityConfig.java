@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,9 +45,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))  // Enable CORS if needed
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users/auth/**").permitAll()  // Open auth endpoints
+                        .requestMatchers("/api/v1/users/auth/**").permitAll()
+//                        .requestMatchers("api/v1/products/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll() // open swagger endpoints
+                        .requestMatchers("/swagger-ui/**").permitAll()// Open auth endpoints
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/v1/users/").hasRole("ADMIN")// Allow access to Actuator endpoints
                         .anyRequest().authenticated()  // Secure all other endpoints

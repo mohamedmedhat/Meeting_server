@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 public class JwtUtil {
 
     @Value("${spring.app.jwtSecret}")
-    private String SECRET_KEY;
+    private String secretKey;
 
     @Value("${spring.app.jwtExpirationMs}")
-    private long EXPIRATION_TIME; // 1 day
+    private long expirationTime; // 1 day
 
 
     public String extractEmail(String token) {
@@ -36,7 +36,7 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
     private Boolean isTokenExpired(String token) {
@@ -50,8 +50,8 @@ public class JwtUtil {
                         .map(role -> "ROLE_" + role)  // Add "ROLE_" prefix
                         .collect(Collectors.toSet()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 

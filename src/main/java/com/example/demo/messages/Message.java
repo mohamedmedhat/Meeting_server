@@ -1,8 +1,10 @@
-package com.example.demo.cart;
+package com.example.demo.messages;
 
-import com.example.demo.product.Product;
 import com.example.demo.user.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -10,28 +12,19 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "carts")
-public class Cart {
-
+@Document(collection = "messages")
+public class Message {
     @Id
     private String id;
 
-    @Field(name = "total_price")
-    private BigDecimal total_price;
-
-    @Field(name = "total_products")
-    private int total_products;
-
-    @DBRef
-    private List<Product> products;
+    @Field(name = "text")
+    private String text;
 
     @DBRef
     private User user;

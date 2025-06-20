@@ -2,77 +2,29 @@ package com.example.demo.user;
 
 import com.example.demo.user.dto.request.RegisterInputRequestDto;
 import com.example.demo.user.dto.response.LoginResponseDto;
-import com.example.demo.user.dto.response.RegisterResponseDto;
 import com.example.demo.user.dto.response.UserResponseDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
-import java.util.Set;
+import org.mapstruct.Context;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
-@Component
-public class UserMapper {
+@Mapper(componentModel = "spring", imports = { Collectors.class })
+public interface UserMapper {
+    @Mapping(target = "password", expression = "java(passwordEncoder.encode(dto.password()))")
+    @Mapping(target = "roles",
+        expression = "java(dto.roles().stream().map(String::toUpperCase).collect(Collectors.toSet()))")
+    User registerInputRequestToEntity(RegisterInputRequestDto dto, @Context PasswordEncoder passwordEncoder);
 
-    private final PasswordEncoder passwordEncoder;
+    @Mapping(target = "password", expression = "java(passwordEncoder.encode(dto.password()))")
+    @Mapping(target = "roles",
+        expression = "java(dto.roles().stream().map(String::toUpperCase).collect(Collectors.toSet()))")
+    User userUpdateToEntity(RegisterInputRequestDto dto, @MappingTarget User user, @Context PasswordEncoder passwordEncoder);
 
-
-    public String encodePassword(String password) {
-        return passwordEncoder.encode(password);
-    }
-
-
-    public RegisterResponseDto toRegisterResponseDto(User user) {
-        return new RegisterResponseDto(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRoles()
-        );
-    }
-
-
-    public User RegisterInputRequestToEntity(RegisterInputRequestDto dto) {
-        String hashPassword = this.encodePassword(dto.getPassword());
-        Set<String> upperCaseRoles = dto.getRoles().stream()
-                .map(String::toUpperCase)
-                .collect(Collectors.toSet());
-        User user = new User();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setPassword(hashPassword);
-        user.setRoles(upperCaseRoles);
-        return user;
-    }
-
-
-    public User UserUpdateTOEntity(RegisterInputRequestDto dto, User user) {
-        String hashPassword = this.encodePassword(dto.getPassword());
-        Set<String> upperCaseRoles = dto.getRoles().stream()
-                .map(String::toUpperCase)
-                .collect(Collectors.toSet());
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setPassword(hashPassword);
-        user.setRoles(upperCaseRoles);
-        return user;
-    }
-
-
-    public UserResponseDto toUserResponseDto(User user) {
-        return new UserResponseDto(
-                user.getName(),
-                user.getEmail(),
-                user.getRoles()
-        );
-    }
-
-
-    public LoginResponseDto toLoginResponseDto(UserResponseDto user, String token) {
-        return new LoginResponseDto(
-                user,
-                token
-        );
+    UserResponseDto toUserResponseDto(User user);
+    default LoginResponseDto toLoginResponseDto(UserResponseDto user, String token) {
+        return new LoginResponseDto(user, token);
     }
 }

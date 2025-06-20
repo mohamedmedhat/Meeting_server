@@ -1,8 +1,8 @@
-package com.example.demo.image;
+package com.example.demo.messages;
 
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ImageRepository extends ReactiveMongoRepository<Image, String> {
+public interface MessageRepository extends ReactiveMongoRepository<Message, String> {
 }

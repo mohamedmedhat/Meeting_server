@@ -1,7 +1,9 @@
 package com.example.demo.security;
 
 import com.example.demo.filter.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,18 +20,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @Autowired
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,29 +33,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource)
+            throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/users/auth/**").permitAll()
-//                        .requestMatchers("api/v1/products/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll() // open swagger endpoints
-                        .requestMatchers("/swagger-ui/**").permitAll()// Open auth endpoints
-                        .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/api/v1/users/").hasRole("ADMIN")// Allow access to Actuator endpoints
-                        .anyRequest().authenticated()  // Secure all other endpoints
+                        .requestMatchers("/api/v1/users/auth/**", "/v3/api-docs/**", "/v3/api-docs/**",
+                                "/swagger-ui/**", "/actuator/**")
+                        .permitAll()
+                        .requestMatchers("/api/v1/users/").hasRole("ADMIN")
+                        .anyRequest().authenticated() // Secure all other endpoints
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Disable sessions (stateless)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Disable sessions (stateless)
                 )
-                .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF for stateless JWT
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT filter
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless JWT
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Add JWT filter
 
         return http.build();
     }

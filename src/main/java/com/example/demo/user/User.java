@@ -1,9 +1,8 @@
 package com.example.demo.user;
 
-import com.example.demo.cart.Cart;
 import com.example.demo.meeting.Meeting;
-import com.example.demo.meeting.Message;
-import com.example.demo.product.Product;
+import com.example.demo.messages.Message;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,16 +43,11 @@ public class User {
     private Set<String> roles = new HashSet<>();
 
     @DBRef
-    private List<Product> products;
-
-    @DBRef
     private Set<Meeting> meetings;
 
     @DBRef
     private List<Message> messages;
 
-    @DBRef
-    private Cart cart;
 
     @CreatedDate
     private LocalDateTime createdAt;

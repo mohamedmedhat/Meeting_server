@@ -2,54 +2,63 @@ package com.example.demo.user;
 
 import com.example.demo.user.dto.request.LoginInputRequestDto;
 import com.example.demo.user.dto.request.RegisterInputRequestDto;
-import com.example.demo.user.dto.response.RegisterResponseDto;
 import com.example.demo.user.dto.response.LoginResponseDto;
+import com.example.demo.user.dto.response.UserResponseDto;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/users/")
 public class UserController {
-    private final IUserService userService;
-
+    private final UserService userService;
 
     @PostMapping("auth/register")
-    public CompletableFuture<RegisterResponseDto> register(@Valid @RequestBody RegisterInputRequestDto userData) {
-        return this.userService.signUp(userData);
+    public Mono<ResponseEntity<UserResponseDto>> register(@Valid @RequestBody RegisterInputRequestDto userData) {
+        return this.userService.signUp(userData)
+                .map(userResponseDto -> ResponseEntity.status(201).body(userResponseDto));
     }
 
     @PostMapping("auth/login")
-    public CompletableFuture<LoginResponseDto> login(@Valid @RequestBody LoginInputRequestDto userData) {
-        return this.userService.login(userData);
+    public Mono<ResponseEntity<LoginResponseDto>> login(@Valid @RequestBody LoginInputRequestDto userData) {
+        return this.userService.login(userData)
+                .map(ResponseEntity::ok);
     }
 
     @PutMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public CompletableFuture<RegisterResponseDto> updateUser(@PathVariable("id") String id, @Valid @RequestBody RegisterInputRequestDto userData) {
-        return this.userService.updateUser(id, userData);
+    public Mono<ResponseEntity<UserResponseDto>> updateUser(@PathVariable("id") String id,
+            @Valid @RequestBody RegisterInputRequestDto userData) {
+        return this.userService.updateUser(id, userData)
+                .map(ResponseEntity::ok);
     }
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Boolean deleteUser(@PathVariable("id") String id) {
-        return this.userService.deleteUser(id);
+    public Mono<ResponseEntity<Void>> deleteUser(@PathVariable("id") String id) {
+        this.userService.deleteUser(id);
+        return Mono.just(ResponseEntity.noContent().build());
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('ORGANIZER')")
-    public User getOne(@PathVariable("id") String id) {
-        return this.userService.getUserById(id);
+    public Mono<ResponseEntity<UserResponseDto>> getOne(@PathVariable("id") String id) {
+        return this.userService.getUserById(id)
+                .map(ResponseEntity::ok);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getAll() {
-        return this.userService.getAllUsers();
+    public Flux<ResponseEntity<UserResponseDto>> getAll(@Param("page") int page, @Param("size") int size) {
+        return this.userService.getAllUsers(page, size)
+                .map(ResponseEntity::ok);
     }
 }

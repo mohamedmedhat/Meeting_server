@@ -1,4 +1,4 @@
-package com.example.demo.meeting;
+package com.example.demo.messages;
 
 import com.example.demo.user.User;
 import lombok.AllArgsConstructor;

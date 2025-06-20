@@ -1,7 +1,8 @@
 package com.example.demo.user;
 
 import com.example.demo.meeting.Meeting;
-import com.example.demo.meeting.Message;
+import com.example.demo.messages.Message;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

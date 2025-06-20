@@ -1,23 +1,15 @@
 package com.example.demo.meeting;
 
 import com.example.demo.meeting.dto.request.CreateMeetingRequestDto;
-import com.example.demo.meeting.dto.request.CreateMessageRequestDto;
-import com.example.demo.user.User;
+import com.example.demo.meeting.dto.response.MeetingResponseDto;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface MeetingService {
-    Meeting createMeeting(CreateMeetingRequestDto meetingData);
+    Mono<MeetingResponseDto> createMeeting(CreateMeetingRequestDto meetingData);
 
-    Message sendMessage(CreateMessageRequestDto messageData, User user);
+    Flux<MeetingResponseDto> getAll(int page, int size);
 
-    Boolean deleteMessage(String id);
-
-    List<Meeting> getAll();
-
-    String handleAsking();
-
-    void handleAnswering();
-
-    void deleteMeeting(String id);
+    Mono<Void> deleteMeeting(String id);
 }

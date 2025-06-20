@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +56,7 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public Flux<ResponseEntity<UserResponseDto>> getAll(@Param("page") int page, @Param("size") int size) {
+    public Flux<ResponseEntity<UserResponseDto>> getAll(@RequestParam("page") int page, @RequestParam("size") int size) {
         return this.userService.getAllUsers(page, size)
                 .map(ResponseEntity::ok);
     }

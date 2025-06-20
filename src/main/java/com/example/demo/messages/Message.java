@@ -1,6 +1,7 @@
 package com.example.demo.messages;
 
 import com.example.demo.user.User;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

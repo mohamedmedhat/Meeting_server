@@ -10,8 +10,4 @@ public interface MessageService {
     Mono<MessageResponseDto> sendMessage(CreateMessageRequestDto messageData, User user);
 
     Mono<Boolean> deleteMessage(String id);
-
-    Mono<String> handleAsking();
-
-    Mono<Void> handleAnswering();
 }

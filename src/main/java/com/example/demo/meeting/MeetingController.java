@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/meetings/")
 public class MeetingController {
-    private final IMeetingService meetingService;
+    private final MeetingService meetingService;
 
     @PostMapping()
     public Meeting createMeeting(@Valid @RequestBody CreateMeetingRequestDto meetingData) {
@@ -29,7 +29,7 @@ public class MeetingController {
     }
 
     @DeleteMapping("{id}")
-    public void deleteMeeting(String id) {
+    public void deleteMeeting(@PathVariable String id) {
         this.meetingService.deleteMeeting(id);
     }
 

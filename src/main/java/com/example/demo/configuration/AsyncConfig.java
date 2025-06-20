@@ -1,13 +1,15 @@
 package com.example.demo.configuration;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.Executor;
 
+@Slf4j
 @Configuration
 public class AsyncConfig implements AsyncConfigurer {
 
@@ -24,8 +26,6 @@ public class AsyncConfig implements AsyncConfigurer {
 
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return (ex, method, params) -> {
-            System.out.println("Exception in async method: " + ex.getMessage());
-        };
+        return (ex, method, params) -> log.error("Exception in async method: {}", ex.getMessage(), ex);
     }
 }

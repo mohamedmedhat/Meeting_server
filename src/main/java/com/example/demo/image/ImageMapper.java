@@ -1,9 +1,13 @@
 package com.example.demo.image;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.example.demo.image.dto.ImageResponseDto;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,5 +30,13 @@ public class ImageMapper {
         image.setFiletype(file.getContentType());
         image.setFilePath("/images/" + file.getOriginalFilename());
         return image;
+    }
+
+    public Mono<ImageResponseDto> toResponseDto(Mono<Image> imageMono) {
+        return imageMono.map(image -> new ImageResponseDto(
+                image.getId(),
+                image.getFilename(),
+                image.getFiletype(),
+                image.getFilePath()));
     }
 }

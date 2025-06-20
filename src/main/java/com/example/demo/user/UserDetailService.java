@@ -6,7 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.stream.Collectors;
+import reactor.core.publisher.Mono;
 
 @Service
 public class UserDetailService implements UserDetailsService {
@@ -20,15 +20,20 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .switchIfEmpty(Mono.error(() -> new UsernameNotFoundException("User not found with email: " + email)))
+                .block();
+
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream()
-                        .map(role -> "ROLE_" + role) // Ensure "ROLE_" prefix
+                        .map(role -> "ROLE_" + role)
                         .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList()))
+                        .toList())
                 .build();
     }
 }

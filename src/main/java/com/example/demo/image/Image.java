@@ -1,6 +1,5 @@
 package com.example.demo.image;
 
-import com.example.demo.product.Product;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
+import com.example.demo.user.User;
 
 @Getter
 @Setter
@@ -26,9 +27,8 @@ public class Image {
     private String filetype;
 
     @Field(name = "filePath")
-//    private byte[] data; => very bad way
     private String filePath;
 
     @DBRef
-    private Product product;
+    private User user;
 }

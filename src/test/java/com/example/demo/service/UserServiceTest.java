@@ -1,17 +1,17 @@
 package com.example.demo.service;
 
 import com.example.demo.user.UserRepository;
-import com.example.demo.user.UserService;
+import com.example.demo.user.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class UserServiceTest {
+class UserServiceTest {
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Mock
     private UserRepository userRepository;
@@ -23,6 +23,6 @@ public class UserServiceTest {
 
     @Test
     void testRegister(){
-
+        // dd
     }
 }
